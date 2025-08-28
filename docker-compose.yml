@@ -23,12 +23,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
+      - DEBUG=False
       - DB_NAME=travel_booking_db
       - DB_USER=travelbooking
       - DB_PASSWORD=travelbooking123
       - DB_HOST=db
       - DB_PORT=5432
+      - SECRET_KEY=your-production-secret-key-change-this
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -38,7 +39,8 @@ services:
     networks:
       - travel_network
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py createsu &&
              python manage.py collectstatic --noinput &&
              python manage.py runserver 0.0.0.0:8000"
 
