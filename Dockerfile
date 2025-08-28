@@ -28,5 +28,5 @@ RUN mkdir -p staticfiles && python manage.py collectstatic --noinput
 # Expose port
 EXPOSE 8000
 
-# Run the application
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py createsu && python manage.py runserver 0.0.0.0:8000"]
+# Run the application with data population
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py createsu && python manage.py populate_data && python manage.py runserver 0.0.0.0:8000"]

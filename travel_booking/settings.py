@@ -16,7 +16,6 @@ ALLOWED_HOSTS = [
     'travel-booking-system-28pq.onrender.com',
     'localhost',
     '127.0.0.1',
-    '*'
 ]
 
 # Application definition
@@ -32,7 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Added for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,10 +60,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'travel_booking.wsgi.application'
 
-# Database - Updated for Render compatibility
-# Database configuration - SECURE VERSION
+# Database configuration
 if os.environ.get('DATABASE_URL'):
-    # Use DATABASE_URL if available (for Render)
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get('DATABASE_URL'),
@@ -73,7 +70,6 @@ if os.environ.get('DATABASE_URL'):
         )
     }
 else:
-    # Fallback for individual environment variables - NO HARDCODED CREDENTIALS!
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -107,14 +103,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images) - FIXED
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# Remove non-existent static directory to fix warning
-STATICFILES_DIRS = []  # Changed from [BASE_DIR / 'static'] to empty list
-
-# Whitenoise static files serving
+STATICFILES_DIRS = []
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
@@ -134,11 +126,18 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
+# FIX FOR REDIRECT LOOP - Add these lines
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False  # Set to False for Render
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+USE_X_FORWARDED_HOST = True
+
 # Security settings for production
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+else:
+    # Development settings
+    SECURE_SSL_REDIRECT = False
