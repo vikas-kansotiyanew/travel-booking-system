@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking {{ booking.booking_id }} - TravelHub{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Booking Header -->
+            <div class="card mb-4 fade-in">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h2><i class="bi bi-ticket-detailed-fill"></i> Booking Details</h2>
+                            <h4 class="text-primary">{{ booking.booking_id }}</h4>
+                        </div>
+                        <div class="text-end">
+                            {% if booking.status == 'CONFIRMED' %}
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-check-circle-fill"></i> Confirmed
+                            </span>
+                            {% elif booking.status == 'CANCELLED' %}
+                            <span class="badge bg-danger fs-6 px-3 py-2">
+                                <i class="bi bi-x-circle-fill"></i> Cancelled
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning fs-6 px-3 py-2">
+                                <i class="bi bi-clock-fill"></i> Pending
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="text-muted">Booked on {{ booking.booking_date|date:"M d, Y" }} at {{ booking.booking_date|time:"H:i" }}</p>
+                </div>
+            </div>
+
+            <!-- Travel Information -->
+            <div class="card mb-4 fade-in">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-map-fill"></i> Journey Information</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <h4>{{ booking.travel_option.source }} → {{ booking.travel_option.destination }}</h4>
+                            <p class="text-muted mb-2">
+                                Operated by {{ booking.travel_option.operator }} • Travel ID: {{ booking.travel_option.travel_id }}
+                            </p>
+                            <div class="d-flex gap-4 text-muted">
+                                <span><i class="bi bi-calendar3"></i> {{ booking.travel_option.departure_date_time|date:"l, M d, Y" }}</span>
+                                <span><i class="bi bi-clock-history"></i> {{ booking.travel_option.duration }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if booking.travel_option.type == 'FLIGHT' %}
+                            <span class="badge bg-info fs-6">
+                                <i class="bi bi-airplane-fill"></i> Flight
+                            </span>
+                            {% elif booking.travel_option.type == 'TRAIN' %}
+                            <span class="badge bg-success fs-6">
+                                <i class="bi bi-train-front-fill"></i> Train
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning fs-6">
+                                <i class="bi bi-bus-front-fill"></i> Bus
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Journey Timeline -->
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="text-center">
+                            <div class="bg-primary rounded-circle p-3 mb-2">
+                                <i class="bi bi-geo-alt-fill text-white fs-4"></i>
+                            </div>
+                            <h5>{{ booking.travel_option.source }}</h5>
+                            <p class="text-muted mb-0">{{ booking.travel_option.departure_date_time|time:"H:i" }}</p>
+                        </div>
+                        
+                        <div class="flex-grow-1 text-center mx-4">
+                            <div class="d-flex align-items-center">
+                                <div class="border-top border-primary border-2 flex-grow-1"></div>
+                                <div class="mx-3">
+                                    {% if booking.travel_option.type == 'FLIGHT' %}
+                                    <i class="bi bi-airplane text-primary" style="font-size: 2rem;"></i>
+                                    {% elif booking.travel_option.type == 'TRAIN' %}
+                                    <i class="bi bi-train-front text-primary" style="font-size: 2rem;"></i>
+                                    {% else %}
+                                    <i class="bi bi-bus-front text-primary" style="font-size: 2rem;"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="border-top border-primary border-2 flex-grow-1"></div>
+                            </div>
+                            <p class="text-primary mt-2 fw-bold">{{ booking.travel_option.duration }}</p>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="bg-success rounded-circle p-3 mb-2">
+                                <i class="bi bi-geo-alt-fill text-white fs-4"></i>
+                            </div>
+                            <h5>{{ booking.travel_option.destination }}</h5>
+                            <p class="text-muted mb-0">{{ booking.travel_option.arrival_date_time|time:"H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passenger & Booking Details -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 fade-in">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-people-fill"></i> Passenger Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Number of Seats:</label>
+                                <p class="mb-2 fs-5 text-primary">{{ booking.number_of_seats }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Passenger Names:</label>
+                                <div class="mt-2">
+                                    {% for name in passenger_names %}
+                                    <span class="badge bg-secondary me-2 mb-2 p-2">
+                                        <i class="bi bi-person-badge-fill"></i> {{ name }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 fade-in">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-telephone-fill"></i> Contact Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Email:</label>
+                                <p class="mb-2">
+                                    <i class="bi bi-envelope-fill text-primary"></i>
+                                    <a href="mailto:{{ booking.contact_email }}" class="text-decoration-none">{{ booking.contact_email }}</a>
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Phone:</label>
+                                <p class="mb-2">
+                                    <i class="bi bi-telephone-fill text-primary"></i>
+                                    <a href="tel:{{ booking.contact_phone }}" class="text-decoration-none">{{ booking.contact_phone }}</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="card mb-4 fade-in">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-receipt-cutoff"></i> Payment Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Base Price (per seat):</span>
+                                <span>₹{{ booking.travel_option.price }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Number of Seats:</span>
+                                <span>{{ booking.number_of_seats }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Taxes & Fees:</span>
+                                <span>Included</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fs-4 fw-bold">
+                                <span>Total Paid:</span>
+                                <span class="text-success">₹{{ booking.total_price }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="bg-success bg-opacity-10 border border-success rounded p-3">
+                                <i class="bi bi-check-circle-fill text-success fs-2"></i>
+                                <h6 class="text-success mt-2 mb-0">Payment Confirmed</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'my_bookings' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Bookings
+                </a>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="printBooking()">
+                        <i class="bi bi-printer-fill"></i> Print
+                    </button>
+                    <button class="btn btn-outline-info" onclick="shareBooking()">
+                        <i class="bi bi-share-fill"></i> Share
+                    </button>
+                    {% if booking.is_cancellable %}
+                    <a href="{% url 'cancel_booking' booking.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-x-circle-fill"></i> Cancel Booking
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Important Information -->
+            <div class="alert alert-info mt-4 fade-in">
+                <h6><i class="bi bi-info-circle-fill"></i> Important Travel Information</h6>
+                <ul class="mb-0">
+                    <li>Please arrive at the departure point at least 30 minutes before scheduled time</li>
+                    <li>Carry a valid government-issued photo ID for verification</li>
+                    <li>Keep this booking confirmation handy during your journey</li>
+                    {% if booking.is_cancellable %}
+                    <li>Free cancellation available up to 24 hours before departure</li>
+                    {% endif %}
+                    <li>For any assistance, contact our 24/7 support at +1 (555) 123-4567</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printBooking() {
+    window.print();
+}
+
+function shareBooking() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Booking Confirmation - {{ booking.booking_id }}',
+            text: 'My travel booking from {{ booking.travel_option.source }} to {{ booking.travel_option.destination }}',
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Booking link copied to clipboard!');
+        });
+    }
+}
+
+// Print styles
+window.addEventListener('beforeprint', function() {
+    document.body.classList.add('printing');
+});
+
+window.addEventListener('afterprint', function() {
+    document.body.classList.remove('printing');
+});
+</script>
+
+<style>
+@media print {
+    .btn, .alert, nav, footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .bg-primary, .bg-success, .bg-info, .bg-warning {
+        background: #f8f9fa !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+    }
+}
+
+.split {
+    display: none;
+}
+</style>
+{% endblock %}

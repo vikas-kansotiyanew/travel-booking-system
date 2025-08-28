@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Travel Booking{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4 fade-in">Travel Made Simple</h1>
+                <p class="lead mb-4 fade-in">Book flights, trains, and buses all in one place. Your journey starts here.</p>
+                <div class="d-flex gap-3 fade-in">
+                    <a href="{% url 'travel_options' %}" class="btn btn-light btn-lg">
+                        <i class="bi bi-search"></i> Search Travel
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">
+                        Get Started <i class="bi bi-arrow-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 300'%3E%3Crect fill='%23fff' width='500' height='300'/%3E%3Cpath fill='%232563eb' d='M100,150 L200,100 L300,130 L400,80 L400,220 L100,220 Z' opacity='0.3'/%3E%3Cpath fill='%23f59e0b' d='M150,180 Q250,120 350,160 L350,220 L150,220 Z' opacity='0.4'/%3E%3C/svg%3E" alt="Travel" class="img-fluid" style="max-height: 300px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Quick Search Section -->
+    <div class="card mb-5 fade-in">
+        <div class="card-body p-4">
+            <h3 class="mb-4"><i class="bi bi-search"></i> Quick Search</h3>
+            <form method="get" action="{% url 'travel_options' %}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <select name="type" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="FLIGHT">✈️ Flight</option>
+                            <option value="TRAIN">🚂 Train</option>
+                            <option value="BUS">🚌 Bus</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="source" class="form-control" placeholder="From">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="destination" class="form-control" placeholder="To">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center p-4 fade-in">
+                <div class="card-body">
+                    <div class="text-primary mb-3">
+                        <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5>Secure Booking</h5>
+                    <p class="text-muted">Your payments and personal information are always secure with us.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center p-4 fade-in">
+                <div class="card-body">
+                    <div class="text-primary mb-3">
+                        <i class="bi bi-clock-history" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5>24/7 Support</h5>
+                    <p class="text-muted">Our customer support team is available round the clock to assist you.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center p-4 fade-in">
+                <div class="card-body">
+                    <div class="text-primary mb-3">
+                        <i class="bi bi-currency-dollar" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5>Best Prices</h5>
+                    <p class="text-muted">Compare and book at the most competitive prices available.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Travel Options -->
+    {% if featured_options %}
+    <h2 class="mb-4"><i class="bi bi-star-fill text-warning"></i> Featured Travel Options</h2>
+    <div class="row">
+        {% for option in featured_options %}
+        <div class="col-md-4 mb-4">
+            <div class="card travel-card h-100 fade-in">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">{{ option.source }} → {{ option.destination }}</h5>
+                        {% if option.type == 'FLIGHT' %}
+                        <span class="badge bg-info badge-type">✈️ Flight</span>
+                        {% elif option.type == 'TRAIN' %}
+                        <span class="badge bg-success badge-type">🚂 Train</span>
+                        {% else %}
+                        <span class="badge bg-warning badge-type">🚌 Bus</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-calendar"></i> {{ option.departure_date_time|date:"M d, Y" }}<br>
+                        <i class="bi bi-clock"></i> {{ option.departure_date_time|time:"H:i" }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-end">
+                        <div>
+                            <h4 class="text-primary mb-0">₹{{ option.price }}</h4>
+                            <small class="text-muted">{{ option.available_seats }} seats left</small>
+                        </div>
+                        <a href="{% url 'travel_option_detail' option.pk %}" class="btn btn-primary btn-sm">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

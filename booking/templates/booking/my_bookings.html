@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - TravelHub{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-ticket-perforated-fill"></i> My Bookings</h2>
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-funnel-fill"></i> Filter Status
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'my_bookings' %}">All Bookings</a></li>
+                <li><a class="dropdown-item" href="?status=CONFIRMED">Confirmed</a></li>
+                <li><a class="dropdown-item" href="?status=CANCELLED">Cancelled</a></li>
+                <li><a class="dropdown-item" href="?status=PENDING">Pending</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Current Bookings -->
+    {% if current_bookings %}
+    <div class="card mb-5 fade-in">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-calendar-check-fill"></i> Upcoming Journeys</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Route</th>
+                            <th>Date & Time</th>
+                            <th>Type</th>
+                            <th>Seats</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in current_bookings %}
+                        <tr class="booking-row">
+                            <td>
+                                <span class="fw-bold text-primary">{{ booking.booking_id }}</span>
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>{{ booking.travel_option.source }} → {{ booking.travel_option.destination }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ booking.travel_option.operator }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    {{ booking.travel_option.departure_date_time|date:"M d, Y" }}
+                                    <br>
+                                    <small class="text-muted">{{ booking.travel_option.departure_date_time|time:"H:i" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if booking.travel_option.type == 'FLIGHT' %}
+                                <span class="badge bg-info">
+                                    <i class="bi bi-airplane-fill"></i> Flight
+                                </span>
+                                {% elif booking.travel_option.type == 'TRAIN' %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-train-front-fill"></i> Train
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-bus-front-fill"></i> Bus
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-bold">{{ booking.number_of_seats }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-success">₹{{ booking.total_price }}</span>
+                            </td>
+                            <td>
+                                {% if booking.status == 'CONFIRMED' %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle-fill"></i> Confirmed
+                                </span>
+                                {% elif booking.status == 'CANCELLED' %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle-fill"></i> Cancelled
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-clock-fill"></i> Pending
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'booking_detail' booking.pk %}" class="btn btn-outline-primary">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    {% if booking.is_cancellable %}
+                                    <a href="{% url 'cancel_booking' booking.pk %}" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Past Bookings -->
+    {% if past_bookings %}
+    <div class="card fade-in">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0"><i class="bi bi-clock-history"></i> Travel History</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Route</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Seats</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in past_bookings %}
+                        <tr class="booking-row opacity-75">
+                            <td>
+                                <span class="text-muted">{{ booking.booking_id }}</span>
+                            </td>
+                            <td>
+                                <div>
+                                    {{ booking.travel_option.source }} → {{ booking.travel_option.destination }}
+                                    <br>
+                                    <small class="text-muted">{{ booking.travel_option.operator }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {{ booking.travel_option.departure_date_time|date:"M d, Y" }}
+                            </td>
+                            <td>
+                                {% if booking.travel_option.type == 'FLIGHT' %}
+                                <span class="badge bg-info bg-opacity-50">
+                                    <i class="bi bi-airplane-fill"></i> Flight
+                                </span>
+                                {% elif booking.travel_option.type == 'TRAIN' %}
+                                <span class="badge bg-success bg-opacity-50">
+                                    <i class="bi bi-train-front-fill"></i> Train
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-50">
+                                    <i class="bi bi-bus-front-fill"></i> Bus
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ booking.number_of_seats }}</td>
+                            <td>₹{{ booking.total_price }}</td>
+                            <td>
+                                {% if booking.status == 'CONFIRMED' %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-check-circle"></i> Completed
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger bg-opacity-50">
+                                    <i class="bi bi-x-circle"></i> Cancelled
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'booking_detail' booking.pk %}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No Bookings -->
+    {% if not current_bookings and not past_bookings %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-ticket-perforated" style="font-size: 4rem; color: var(--text-muted);"></i>
+        </div>
+        <h3 class="mb-3">No Bookings Found</h3>
+        <p class="text-muted mb-4">You haven't made any bookings yet. Start exploring amazing travel options!</p>
+        <a href="{% url 'travel_options' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-search"></i> Browse Travel Options
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Quick Stats -->
+    {% if current_bookings or past_bookings %}
+    <div class="row mt-5">
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card text-center p-3">
+                <h3 class="mb-1">{{ current_bookings|length }}</h3>
+                <p class="mb-0 opacity-75">Upcoming</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card text-center p-3">
+                <h3 class="mb-1">{{ past_bookings|length }}</h3>
+                <p class="mb-0 opacity-75">Completed</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card text-center p-3">
+                <h3 class="mb-1">
+                    {% widthratio current_bookings|length 1 10 %}%
+                </h3>
+                <p class="mb-0 opacity-75">Success Rate</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card text-center p-3">
+                <h3 class="mb-1">24/7</h3>
+                <p class="mb-0 opacity-75">Support</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.booking-row {
+    transition: all 0.3s ease;
+}
+
+.booking-row:hover {
+    background-color: var(--dark-surface-hover);
+    transform: translateX(5px);
+}
+
+.table-dark {
+    --bs-table-bg: var(--dark-surface);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--dark-surface-hover);
+}
+</style>
+{% endblock %}
