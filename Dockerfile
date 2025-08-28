@@ -29,4 +29,4 @@ RUN mkdir -p staticfiles && python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Run the application with data population
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py createsu && python manage.py populate_data && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py createsu && python manage.py populate_data --count 100000 && python manage.py runserver 0.0.0.0:8000"]
